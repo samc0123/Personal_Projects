@@ -19,7 +19,10 @@ WHITE = "#FFFFFF"
 BLACK = "#000000"
 FONT = "Times New Roman"
 
-
+# Lists to store indices of correct/wrong words 
+global correctWord, wrongWord
+correctWord = []
+wrongWord = []
 
 
 def chkButFnc():
@@ -33,11 +36,24 @@ def chkButFnc():
     word_num = str((df.loc[df["Spanish"] == next_word]["Number"]).iat[0])
     canvas.itemconfig(word_text, text = next_word)
 
+    # Track the correct words 
+    correctWord.append(word_num)
  
-
-
 def xButFnc():
-    pass
+    '''Function changing the words when the check button is pressed'''
+    
+    # Change title text of the card
+    canvas.itemconfig(title_text, text= "Spanish")
+
+    # Access the next card
+    next_word = random.choice(df["Spanish"])
+    word_num = str((df.loc[df["Spanish"] == next_word]["Number"]).iat[0])
+    canvas.itemconfig(word_text, text = next_word)
+
+    # Track the wrong words 
+    wrongWord.append(word_num)
+
+
 
 ## -------------------------- Word Processing ----------------------------------------##
 
@@ -74,12 +90,13 @@ canvas.grid(column=1, row=1,columnspan=2)
 word_counter = 0 
 
 x_image = PhotoImage(file="/Users/samchernov/Desktop/Learnings/gitProjects/day31_FlashCards/images/wrong.png")
-x_button = Button(image=x_image, highlightthickness=0)
+x_button = Button(image=x_image, highlightthickness=0,command=xButFnc)
 x_button.grid(column=1, row = 2)
 
 ck_image = PhotoImage(file="/Users/samchernov/Desktop/Learnings/gitProjects/day31_FlashCards/images/right.png")
 ck_button = Button(image=ck_image, highlightthickness=0,command=chkButFnc)
 ck_button.grid(column=2, row=2)
+
 
 
 
