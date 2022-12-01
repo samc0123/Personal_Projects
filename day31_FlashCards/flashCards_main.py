@@ -4,7 +4,7 @@
 
 
 ## ---------------------------- Imports ----------------------------------------------##
-from cgitb import text
+
 from tkinter import *
 import pandas as pd
 import unidecode as uc
@@ -23,17 +23,39 @@ FONT = "Times New Roman"
 global correctWord, wrongWord
 correctWord = []
 wrongWord = []
+cardAttributes = {
+    'Spanish':'',
+    'English':'', 
+    'Number': ''
+}
+
+def currentCard (spanTxt:Text) -> int: 
+    '''Stores current card properties, returns wordNumber for correct/incorrect storage'''
+    # Store properties of the selected card
+    word_num = str((df.loc[df["Spanish"] == spanTxt]["Number"]).iat[0])
+    engTrans = df.loc[df["Spanish"]==spanTxt]["English"].iat[0]
+
+    cardAttributes['Spanish'] = spanTxt
+    cardAttributes['English'] = engTrans
+    cardAttributes["Number"] = word_num
+
+    return word_num
 
 
 def chkButFnc():
     '''Function changing the words when the check button is pressed'''
     
-    # Change title text of the card
+    # Change title text of the card,background
     canvas.itemconfig(title_text, text= "Spanish")
+    canvas.itemconfig(card_img,image=front_bckgrnd_img)
 
     # Access the next card
     next_word = random.choice(df["Spanish"])
-    word_num = str((df.loc[df["Spanish"] == next_word]["Number"]).iat[0])
+    
+    # Store card properties
+    word_num = currentCard(next_word)
+
+    # Change canvas text
     canvas.itemconfig(word_text, text = next_word)
 
     # Track the correct words 
@@ -42,16 +64,36 @@ def chkButFnc():
 def xButFnc():
     '''Function changing the words when the check button is pressed'''
     
-    # Change title text of the card
+    # Change title text of the card, background
     canvas.itemconfig(title_text, text= "Spanish")
+    canvas.itemconfig(card_img,image=front_bckgrnd_img)
 
     # Access the next card
     next_word = random.choice(df["Spanish"])
-    word_num = str((df.loc[df["Spanish"] == next_word]["Number"]).iat[0])
+
+     # Store card properties
+    word_num = currentCard(next_word)
+
+    # Change canvas text
     canvas.itemconfig(word_text, text = next_word)
 
     # Track the wrong words 
     wrongWord.append(word_num)
+
+def cardFlip(key):
+    # Modify the title
+    canvas.itemconfig(title_text,text= "English")
+
+    # Modify the background
+    canvas.itemconfig(card_img,image=back_bckgrnd_img)
+    
+    # Change to english 
+    canvas.itemconfig(word_text,text=cardAttributes['English'])
+    
+    
+    print("entered CardFlip func")
+
+    
 
 
 
@@ -69,11 +111,12 @@ window.title("Flash Card Generator")
 window.minsize(width=100, height=800)
 window.config(padx=50, pady=50, bg = TEAL)
 
-# Create new Canvas with flashcard background 
+# Create new Canvas with flashcard background, front
 canvas = Canvas(width=800, height=600, bg=WHITE, highlightthickness=0)
 front_bckgrnd_img = PhotoImage(file="/Users/samchernov/Desktop/Learnings/gitProjects/day31_FlashCards/images/card_front.png")
+back_bckgrnd_img =PhotoImage(file="images/card_back.png")
+card_img = canvas.create_image(400,300,image=front_bckgrnd_img)
 canvas.grid(column=0,row=0)
-canvas.create_image(400,300,image=front_bckgrnd_img)
 canvas.config(bg=TEAL)
 
 # Add text to canvas 
@@ -87,7 +130,6 @@ canvas.grid(column=1, row=1,columnspan=2)
 
 
 # Buttons
-word_counter = 0 
 
 x_image = PhotoImage(file="/Users/samchernov/Desktop/Learnings/gitProjects/day31_FlashCards/images/wrong.png")
 x_button = Button(image=x_image, highlightthickness=0,command=xButFnc)
@@ -97,6 +139,8 @@ ck_image = PhotoImage(file="/Users/samchernov/Desktop/Learnings/gitProjects/day3
 ck_button = Button(image=ck_image, highlightthickness=0,command=chkButFnc)
 ck_button.grid(column=2, row=2)
 
+# Flip Card using spacebar 
+window.bind("<space>", cardFlip)
 
 
 
